@@ -352,8 +352,8 @@ void loop() {
     memcpy(&lattitude, buf, 4);
     memcpy(&longitude, buf + 4, 8);
     memcpy(&altitude, buf + 8, 8);
-    memcpy(&temperature, buf + 12, 8);
-
+    memcpy(&temperature, buf + 21, 8);
+    
     Serial.printf("Temperature: %.2f\n", temperature);
     Serial.println();
 
