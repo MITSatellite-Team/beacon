@@ -2,7 +2,7 @@
 #include "HT_SSD1306Wire.h"
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include <ArduinoJson.h>
+#include <Arduino_JSON.h>
 
 // ---------- Pin definitions (Heltec V3) ----------
 #define LORA_NSS   8
@@ -359,7 +359,7 @@ void loop() {
       float pressure = 0.0f;
       float humidity = 0.0f;
 
-      bool imu_valid = 0;
+      bool imuValid = 0;
       float ax = 0.0f;
       float ay = 0.0f;
       float az = 0.0f;
@@ -397,7 +397,7 @@ void loop() {
       memcpy(&pressure, buf + 38, 4);
       memcpy(&humidity, buf + 42, 4);
 
-      memcpy(&imu_valid, buf + 46, 1);
+      memcpy(&imuValid, buf + 46, 1);
       memcpy(&ax, buf + 47, 4);
       memcpy(&ay, buf + 51, 4);
       memcpy(&az, buf + 55, 4);
@@ -408,7 +408,7 @@ void loop() {
       memcpy(&my, buf + 75, 4);
       memcpy(&mz, buf + 79, 4);
 
-      JsonDocument doc;
+      JSONVar doc;
 
       doc["timestamp"] = timestamp;
 
@@ -418,14 +418,14 @@ void loop() {
       doc["longitude"] = longitude;
       doc["altitude"] = altitude;
 
-      doc["temperature0Valid"] = temperature0Valid;
-      doc["temperature0"] = temperature0;
-      doc["temperature1Valid"] = temperature1Valid;
-      doc["temperature1"] = temperature1;
-      doc["temperature2Valid"] = temperature2Valid;
-      doc["temperature2"] = temperature2;
-      doc["temperature3Valid"] = temperature3Valid;
-      doc["temperature3"] = temperature3;
+      doc["temperature0Valid"] = temp0Valid;
+      doc["temperature0"] = temp0;
+      doc["temperature1Valid"] = temp1Valid;
+      doc["temperature1"] = temp1;
+      doc["temperature2Valid"] = temp2Valid;
+      doc["temperature2"] = temp2;
+      doc["temperature3Valid"] = temp3Valid;
+      doc["temperature3"] = temp3;
 
       doc["baroValid"] = baroValid;
       doc["pressure"] = pressure;
@@ -442,7 +442,7 @@ void loop() {
       doc["my"] = my;
       doc["mz"] = mz;
 
-      Serial.printf("Temperature: %.2f\n", temperature);
+      Serial.printf("Temperature: %.2f\n", temp0);
       Serial.println();
 
       // Post radio data
@@ -452,11 +452,10 @@ void loop() {
       }
 
       HTTPClient http;
-      http.begin("https://35.222.71.40:8080/api/update");
+      http.begin("http://35.222.71.40:8080/api/update");
       http.addHeader("Content-Type", "text/plain");
 
-      String body;
-      serializeJson(doc, body);
+      String body = JSON.stringify(doc);
 
       int httpCode = http.POST(body);
 
@@ -465,7 +464,7 @@ void loop() {
         pushLine("POST OK " + String(httpCode));
       } else {
         Serial.printf("[HTTP] POST failed: %s\n", http.errorToString(httpCode).c_str());
-        pushLine("POST FAIL");
+        pushLine("POST FAIL" + String(httpCode));
       }
 
       http.end();
