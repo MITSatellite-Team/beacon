@@ -16,7 +16,7 @@
 // ---------- LoRa parameters ----------
 #define LORA_FREQ   435.0
 #define LORA_BW     125.0
-#define LORA_SF     7
+#define LORA_SF     10
 #define LORA_CR     5
 #define LORA_SYNC   0x12
 
