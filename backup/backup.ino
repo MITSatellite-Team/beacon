@@ -16,7 +16,7 @@
 // ---------- LoRa parameters ----------
 #define LORA_FREQ   435.0
 #define LORA_BW     125.0
-#define LORA_SF     7
+#define LORA_SF     10
 #define LORA_CR     5
 #define LORA_SYNC   0x12
 
@@ -337,38 +337,13 @@ void loop() {
     for (int i = 0; i < len; i++) Serial.printf("%02X ", buf[i]);
     Serial.println();
 
-    if (buf[0] == 'S' && buf[1] == 'T' && buf[83] == 'R' && buf[84] == 'D') {
+    if (buf[0] == 'S' && buf[1] == 'T' && buf[20] == 'R' && buf[21] == 'D') {
       int timestamp = 0;
       bool gpsValid = 0;
       int gpsFix = 0;
       float latitude = 0.0f;
       float longitude = 0.0f;
       float altitude = 0.0f;
-
-      bool temp0Valid = 0;
-      bool temp1Valid = 0;
-      bool temp2Valid = 0;
-      bool temp3Valid = 0;
-
-      float temp0 = 0.0f;
-      float temp1 = 0.0f;
-      float temp2 = 0.0f;
-      float temp3 = 0.0f;
-
-      bool baroValid = 0;
-      float pressure = 0.0f;
-      float humidity = 0.0f;
-
-      bool imuValid = 0;
-      float ax = 0.0f;
-      float ay = 0.0f;
-      float az = 0.0f;
-      float gx = 0.0f;
-      float gy = 0.0f;
-      float gz = 0.0f;
-      float mx = 0.0f;
-      float my = 0.0f;
-      float mz = 0.0f;
 
       memcpy(&timestamp, buf + 2, 4);
       memcpy(&gpsValid, buf + 6, 1);
@@ -377,36 +352,6 @@ void loop() {
       memcpy(&latitude, buf + 8, 4);
       memcpy(&longitude, buf + 12, 4);
       memcpy(&altitude, buf + 16, 4);
-
-      memcpy(&temp0Valid, buf + 20, 1);
-      memcpy(&temp1Valid, buf + 20, 1);
-      memcpy(&temp2Valid, buf + 20, 1);
-      memcpy(&temp3Valid, buf + 20, 1);
-
-      temp0Valid &= 0x1;
-      temp1Valid = (temp1Valid & 0x2) >> 1;
-      temp2Valid = (temp1Valid & 0x4) >> 2;
-      temp3Valid = (temp1Valid & 0x8) >> 3;
-
-      memcpy(&temp0, buf + 21, 4);
-      memcpy(&temp1, buf + 25, 4);
-      memcpy(&temp2, buf + 29, 4);
-      memcpy(&temp3, buf + 33, 4);
-
-      memcpy(&baroValid, buf + 37, 1);
-      memcpy(&pressure, buf + 38, 4);
-      memcpy(&humidity, buf + 42, 4);
-
-      memcpy(&imuValid, buf + 46, 1);
-      memcpy(&ax, buf + 47, 4);
-      memcpy(&ay, buf + 51, 4);
-      memcpy(&az, buf + 55, 4);
-      memcpy(&gx, buf + 59, 4);
-      memcpy(&gy, buf + 63, 4);
-      memcpy(&gz, buf + 67, 4);
-      memcpy(&mx, buf + 71, 4);
-      memcpy(&my, buf + 75, 4);
-      memcpy(&mz, buf + 79, 4);
 
       JSONVar doc;
 
@@ -417,33 +362,6 @@ void loop() {
       doc["latitude"] = latitude;
       doc["longitude"] = longitude;
       doc["altitude"] = altitude;
-
-      doc["temperature0Valid"] = temp0Valid;
-      doc["temperature0"] = temp0;
-      doc["temperature1Valid"] = temp1Valid;
-      doc["temperature1"] = temp1;
-      doc["temperature2Valid"] = temp2Valid;
-      doc["temperature2"] = temp2;
-      doc["temperature3Valid"] = temp3Valid;
-      doc["temperature3"] = temp3;
-
-      doc["baroValid"] = baroValid;
-      doc["pressure"] = pressure;
-      doc["humidity"] = humidity;
-
-      doc["imuValid"] = imuValid;
-      doc["ax"] = ax;
-      doc["ay"] = ay;
-      doc["az"] = az;
-      doc["gx"] = gx;
-      doc["gy"] = gy;
-      doc["gz"] = gz;
-      doc["mx"] = mx;
-      doc["my"] = my;
-      doc["mz"] = mz;
-
-      Serial.printf("Temperature: %.2f\n", temp0);
-      Serial.println();
 
       // Post radio data
       if (WiFi.status() != WL_CONNECTED) {
