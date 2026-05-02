@@ -37,6 +37,8 @@
 const char* ssid = "Pixel_7895";
 const char* password = "lehotsPot";
 
+const char* beacon_id = "Beacon 1";
+
 // ---------- Display ----------
 SSD1306Wire oled(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED);
 
@@ -345,6 +347,7 @@ void loop() {
       float longitude = 0.0f;
       float altitude = 0.0f;
 
+      int tempValid = 0;
       bool temp0Valid = 0;
       bool temp1Valid = 0;
       bool temp2Valid = 0;
@@ -378,15 +381,12 @@ void loop() {
       memcpy(&longitude, buf + 12, 4);
       memcpy(&altitude, buf + 16, 4);
 
-      memcpy(&temp0Valid, buf + 20, 1);
-      memcpy(&temp1Valid, buf + 20, 1);
-      memcpy(&temp2Valid, buf + 20, 1);
-      memcpy(&temp3Valid, buf + 20, 1);
+      memcpy(&tempValid, buf + 20, 1);
 
-      temp0Valid &= 0x1;
-      temp1Valid = (temp1Valid & 0x2) >> 1;
-      temp2Valid = (temp1Valid & 0x4) >> 2;
-      temp3Valid = (temp1Valid & 0x8) >> 3;
+      temp0Valid = tempValid & 0x1;
+      temp1Valid = (tempValid & 0x2) >> 1;
+      temp2Valid = (tempValid & 0x4) >> 2;
+      temp3Valid = (tempValid & 0x8) >> 3;
 
       memcpy(&temp0, buf + 21, 4);
       memcpy(&temp1, buf + 25, 4);
@@ -441,6 +441,8 @@ void loop() {
       doc["mx"] = mx;
       doc["my"] = my;
       doc["mz"] = mz;
+
+      doc["beacon"] = beacon_id;
 
       // Post radio data
       // if (WiFi.status() != WL_CONNECTED) {
